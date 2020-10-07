@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+    db:
+        build: ./db/
+        # environment:
+        #     POSTGRES_USER: postgres
+        #     POSTGRES_DB: tempdb
+        #     POSTGRES_HOST_AUTH_METHOD: "trust"
+        ports: 
+            - '5432:5432'
+    
+    apparel:
+        build: ./apparel/
+        depends_on: 
+            - db
+        ports:
+            - '3000:3000'
+        # volumes: 
+        #     - ./apparel/:/app
+        environment: 
+            DB_HOST: db
+    
+    prices:
+        build: ./prices/
+        ports:
+            - '5000:5000'
+        depends_on: 
+            - apparel
+    
+    php-app:
+        build: ./site/
+        depends_on: 
+            - prices
+        ports:
+            - '8080:80'

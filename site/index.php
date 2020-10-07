@@ -12,7 +12,7 @@
 
     <ul>
         <?php
-            foreach(json_decode(file_get_contents('http://prices')) as $item){
+            foreach(json_decode(file_get_contents('http://prices:5000')) as $item){
                 echo "<li>$item->name: $$item->price</li>";
             }
         ?>
@@ -22,7 +22,7 @@
 
     <ul>
         <?php
-            foreach(json_decode(file_get_contents('http://apparel')) as $item){
+            foreach(json_decode(file_get_contents('http://apparel:3000')) as $item){
                 echo "<li>$item->name</li>";
             }
         ?>
