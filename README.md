@@ -41,31 +41,45 @@ Note that Dockerfile has to be named as Dockerfile itself without any extensions
 
 ### Some of the commands used in Dockerfile
 
-`` FROM <base_image>:tag``
+```
+FROM <base_image>:tag
+```
 This tells the docker to use ``<base_image>:tag`` as the base image and build the image on top of this base image.
 
 
-`` WORKDIR /pahta/pathb/...``
+```
+WORKDIR /pahta/pathb/...
+```
 The WORKDIR command is used to define the working directory of a Docker container at any given time. Any RUN, CMD, ADD, COPY, or ENTRYPOINT command will be executed in the specified working directory. WORKDIR can be reused to set a new working directory at any stage of the Dockerfile. The path of the new working directory must be given relative to the current working directory.
 
 
-``COPY src_path dest_path``
+```
+COPY src_path dest_path
+```
 The COPY command tells the docker to copy the file/files in the src_path to the dest_path. src_path is in the host and dest_path is created in the image.
 
 
-`` RUN command``
+``` 
+RUN command
+```
 The RUN command is used to run bash commands. The result of which happens in the image.
 
 
-`` CMD["X", "Y", "", "", ...]``
+```
+CMD["X", "Y", "", "", ...]
+```
 To use commands like ``python app.py`` we can use CMD ["python", "app.py"]
 
 
-`` EXPOSE <port> ``
+```
+EXPOSE <port> 
+```
 The EXPOSE instruction informs Docker that the container listens on the specified network ports at runtime. You can specify whether the port listens on TCP or UDP, and the default is TCP if the protocol is not specified.
 
 
-`` ENV <key>=<value>``
+``` 
+ENV <key>=<value>
+```
 The ENV instruction sets the environment variable <key> to the value <value>. 
 
 
@@ -81,16 +95,36 @@ The ENV instruction sets the environment variable <key> to the value <value>.
   
   First we need to make docker-compose.yml file. This contains all the things which we want our image to have.
   
-  `` version: 'x' `` This is the version of the docker-compose.yml file format. We are using version 3
-  `` services`` The components/microservices. For this task there are 4 services: db, apparel, prices, php-app
-  `` build: path`` To build this service use this path where there is Dockerfile for the service. I have written Dockerfiles for all the services.  We can also build the image from using the base image and then specifying all the things mentioned in the Dockerfile without creating Dockerfile
+  ``` 
+  version: 'x' 
+  ``` 
+  This is the version of the docker-compose.yml file format. We are using version 3
+  
+  
+  ``` 
+  services:
+  ``` 
+  The components/microservices. For this task there are 4 services: db, apparel, prices, php-app
+  
+  
+  ``` 
+  build: path
+  ``` 
+  To build this service use this path where there is Dockerfile for the service. I have written Dockerfiles for all the services.  We can also build the image from using the base image and then specifying all the things mentioned in the Dockerfile without creating Dockerfile
+  
+  
   ```
   ports:
     - '8080:80'
    ```
    This maps the port 80 which is exposed by the container to 3000 of the host OS.
    
-   `` depends_on: service1``(written for service2) To tell that the service2 depends on servicee 1.
+  
+  ``` 
+  depends_on: service1
+  ```
+  (written for service2) To tell that the service2 depends on servicee 1.
+   
    
    ```
     volumes:
@@ -110,3 +144,40 @@ The ENV instruction sets the environment variable <key> to the value <value>.
 8. The apparel service returns the data in the apparel table when made a get request to it.
 9. Basically how this application works is, php is responsble for showing the end result. This php service first requests the flask(prices) service for the data, prices in turn requests apparel service. apparel then requests the postgres database and the data is returned. Then apparel sends this data to prices as an object Prices then puts prices(cost) to all these data and sends it as json to php . PHP then uses HTML to display to the user.
 10. Likewise point 7 I made changes to flask service by adding the request path and same for php also.
+11. Also using docker layer caching I ensured in the node app there are less builds required(In case we just update the code without installing any new npm package, we can just place npm install command in Dockerfile before copying the source code files so that we can use cached image till that step where we copy code files. I did same with flask service by placing pip install requirements.txt above COPY source files).
+
+## Few important commands to list
+```
+sudo docker image ls
+```
+Lists all the images built.
+
+
+```
+sudo docker ps -a
+```
+Shows all the containers with their status, container ID, used image etc.
+
+
+```
+sudo docker image rm <image_id>
+```
+Deletes the image with given ID.
+
+
+```
+sudo docker rm <container_id>
+```
+Deletes the contaienr with the given ID.
+
+
+```
+sudo docker built -t <name>:tag -p x:y -d <Dockerfile path>
+```
+Builds image with name as ``<name>:tag`` (default tag is latest), -d is to run the container in background(detached mode) -p is to specify the port mapping.
+
+
+```
+sudo docker-compose up
+```
+Builds all the images(if not built) by checking docker-compose.yml and starts all the container.
